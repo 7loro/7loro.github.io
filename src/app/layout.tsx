@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ThemeProvider } from "@/context/theme/ThemeProvider";
+import { ThemeProvider } from "next-themes";
 
 export const metadata: Metadata = {
   title: "Casper blog",
@@ -15,8 +15,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <html suppressHydrationWarning={true}>
+      <head/>
+      <body>
         <ThemeProvider>
           <Header/>
           <main className="min-h-screen">{children}</main>
