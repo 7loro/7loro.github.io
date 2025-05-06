@@ -22,3 +22,8 @@
 .prose h3 {
   font-size: 1.25em;
 }
+
+/* highlight.js 테마 CSS 임포트 */
+/* node_modules/highlight.js/styles/ 폴더에서 원하는 테마 선택 */
+/* 예시: github-dark.css 테마 */
+@import 'highlight.js/styles/github-dark.css';

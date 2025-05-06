@@ -2,6 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+// Remark 및 Rehype 플러그인 임포트
+import remarkGfm from 'remark-gfm'; // GFM 문법 지원
+import rehypeHighlight from 'rehype-highlight'; // 코드 하이라이팅 (highlight.js 사용)
 
 interface PostDetailProps {
     id: string;
@@ -15,6 +18,13 @@ export default function PostDetail({ id }: PostDetailProps) {
     // 메타데이터와 콘텐츠 분리
     const { data, content } = matter(fileContents);
     const { title, date, tags } = data;
+
+    const options = {
+        mdxOptions: {
+            remarkPlugins: [remarkGfm],
+            rehypePlugins: [rehypeHighlight],
+        }
+    }
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -30,7 +40,9 @@ export default function PostDetail({ id }: PostDetailProps) {
             </div>
 
             <div className="prose prose-lg max-w-none dark:prose-invert">
-                <MDXRemote source={content} />
+                <MDXRemote
+                    options={options}
+                    source={content} />
             </div>
         </div>
     );
