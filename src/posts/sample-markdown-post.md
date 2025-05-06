@@ -54,7 +54,7 @@ function hello() {
 
 [링크 텍스트](https://example.com)
 
-![이미지 설명](이미지_주소.jpg)
+![이미지 설명](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FusczQ%2FbtstvQov4qC%2FhyUhqL0quUnl08NtLAzd4k%2Fimg.webp)
 
 ## 마크다운 블로그 작성 팁
 
