@@ -1,6 +1,7 @@
 // useState와 useEffect는 필요 없어지지만, useTheme 훅 사용을 위해 React 임포트는 필요할 수 있습니다.
 import React from "react";
 import ThemeSwitch from "./ThemeSwitch";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -16,15 +17,12 @@ export default function Header() {
       <nav className="flex items-center space-x-4">
         {/* Link 컴포넌트 사용을 권장합니다. */}
         <ThemeSwitch />
-        <a href="/" className="text-gray-700 hover:text-blue-500 dark:text-gray-200">
+        <Link href="/" className="text-gray-700 hover:text-blue-500 dark:text-gray-200">
           Home
-        </a>
-        <a href="/about" className="text-gray-700 hover:text-blue-500 dark:text-gray-200">
+        </Link>
+        <Link href="/about" className="text-gray-700 hover:text-blue-500 dark:text-gray-200">
           About
-        </a>
-        <a href="/contact" className="text-gray-700 hover:text-blue-500 dark:text-gray-200">
-          Contact
-        </a>
+        </Link>
       </nav>
     </header>
   );
