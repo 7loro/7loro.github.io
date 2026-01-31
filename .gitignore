@@ -32,9 +32,6 @@ npm-debug.log*
 coverage/
 test-results/
 
-# Auto-generated content (synced from source)
-src/content/posts/
-
 # Pagefind (generated at build time)
 public/pagefind/
 
