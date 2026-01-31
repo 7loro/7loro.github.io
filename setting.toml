@@ -1,0 +1,29 @@
+# girok.md Configuration File
+# Knowledge becomes a map when shared.
+# Edit this file to configure your blog.
+
+# Markdown Source Path
+# Enter the absolute path to the folder containing markdown files to sync.
+source_root_path = "/Users/casper/pkm"
+
+# Blog Name
+# The name displayed in the site title and header.
+blog_name = "Casper Blog"
+
+# Site URL
+# Enter your GitHub Pages deployment URL or custom domain.
+# e.g., "https://7loro.github.io" or "https://yourdomain.com"
+site_url = "https://7loro.github.io"
+
+# Locale
+# Language for UI text. Supported: "en", "ko"
+locale = "en"
+
+# Intro Section
+# Customize the homepage introduction section.
+[intro]
+name = "Your Name"
+role = "Developer"
+greeting = "Hello, I'm"
+description = "I write blog posts from my Obsidian vault.\nFrom bug fixes to daily logs, I commit everything."
+intro_tags = ["JavaScript", "TypeScript", "React", "Node.js"]

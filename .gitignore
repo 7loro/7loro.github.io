@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Astro
+.astro/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test
+coverage/
+test-results/
+
+# Auto-generated content (synced from source)
+src/content/posts/
+
+# Pagefind (generated at build time)
+public/pagefind/
+
+# TypeScript
+*.tsbuildinfo
+
+# AI
+.sisyphus

@@ -1,0 +1,36 @@
+---
+/**
+ * 포스트 상세 페이지
+ * - Astro Content Collections 사용
+ * - getHeadings()로 TOC 데이터 추출
+ * - PostLayout + TOC 컴포넌트 통합
+ */
+import { getCollection } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+import TOC from '../../components/TOC.astro';
+
+// 정적 경로 생성
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+
+// frontmatter에서 메타데이터 추출
+const { title, description, date, tags } = post.data;
+---
+
+<PostLayout 
+  title={title} 
+  description={description} 
+  date={date} 
+  tags={tags}
+  headings={headings}
+>
+  <Content />
+</PostLayout>
