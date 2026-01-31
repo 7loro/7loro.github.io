@@ -8,7 +8,8 @@
     "postbuild": "pagefind --site dist",
     "preview": "astro preview",
     "test": "vitest",
-    "sync": "node scripts/sync.ts"
+    "sync": "node scripts/sync.ts",
+    "clean": "node scripts/clean.ts"
   },
   "keywords": ["markdown", "blog", "static-site-generator", "astro"],
   "author": "",
