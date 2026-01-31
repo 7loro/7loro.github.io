@@ -39,15 +39,21 @@ Your notes are more than personal memos—they become a map that guides someone 
 
 ## Quick Start
 
-### 1. Clone the Project
+### 1. Create Your Repository
+
+Click the **Use this template** button at the top of this page to create your own repository.
+
+> **Tip**: Name your repository `username.github.io` (e.g., `7loro.github.io`) for easy GitHub Pages deployment.
+
+### 2. Clone and Install
 
 ```bash
-git clone https://github.com/your-username/girok-md.git
-cd girok-md
+git clone https://github.com/YOUR_USERNAME/YOUR_USERNAME.github.io.git
+cd YOUR_USERNAME.github.io
 npm install
 ```
 
-### 2. Configuration
+### 3. Configuration
 
 Edit the `setting.toml` file:
 
@@ -62,7 +68,7 @@ blog_name = "My Blog"
 site_url = "https://your-username.github.io"
 ```
 
-### 3. Sync and Run
+### 4. Sync and Run
 
 ```bash
 # Sync posts from your markdown folder
@@ -138,8 +144,69 @@ Write your content here.
 
 ### GitHub Pages
 
-1. Go to Repository Settings > Pages > Source: select "GitHub Actions"
-2. Push to the `main` branch to trigger automatic deployment
+Create `.github/workflows/deploy.yml` file in your repository:
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+Then configure GitHub Pages:
+
+1. Name your repository `username.github.io` (if you haven't already)
+2. Go to Repository **Settings > Pages > Source**: select "GitHub Actions"
+3. Push to `main` branch to trigger automatic deployment
+4. Your blog will be available at `https://username.github.io`
+
+The workflow automatically builds and deploys your blog on every push to the `main` branch. You can also trigger deployment manually from the **Actions** tab.
 
 ### Manual Build
 

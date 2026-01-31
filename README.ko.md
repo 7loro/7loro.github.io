@@ -37,15 +37,21 @@
 
 ## 빠른 시작
 
-### 1. 프로젝트 클론
+### 1. 저장소 생성
+
+이 페이지 상단의 **Use this template** 버튼을 클릭하여 본인 저장소를 생성합니다.
+
+> **Tip**: 저장소 이름을 `username.github.io` 형식으로 지정하면 (예: `7loro.github.io`) GitHub Pages 배포가 간편해집니다.
+
+### 2. 클론 및 설치
 
 ```bash
-git clone https://github.com/your-username/girok-md.git
-cd girok-md
+git clone https://github.com/YOUR_USERNAME/YOUR_USERNAME.github.io.git
+cd YOUR_USERNAME.github.io
 npm install
 ```
 
-### 2. 설정
+### 3. 설정
 
 `setting.toml` 파일을 수정합니다:
 
@@ -60,7 +66,7 @@ blog_name = "My Blog"
 site_url = "https://your-username.github.io"
 ```
 
-### 3. 동기화 및 실행
+### 4. 동기화 및 실행
 
 ```bash
 # 마크다운 폴더에서 포스트 동기화
@@ -136,8 +142,69 @@ description: 포스트 설명 (선택)
 
 ### GitHub Pages
 
-1. Repository Settings > Pages > Source에서 "GitHub Actions" 선택
-2. `main` 브랜치에 push하면 자동으로 배포됨
+저장소에 `.github/workflows/deploy.yml` 파일을 생성합니다:
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+GitHub Pages 설정:
+
+1. 저장소 이름을 `username.github.io` 형식으로 지정합니다 (아직 안 했다면)
+2. Repository **Settings > Pages > Source**에서 "GitHub Actions" 선택
+3. `main` 브랜치에 push하면 자동으로 배포됨
+4. `https://username.github.io`에서 블로그 확인 가능
+
+이 워크플로우는 `main` 브랜치로 push할 때마다 자동으로 빌드하고 배포합니다. **Actions** 탭에서 수동으로 배포를 트리거할 수도 있습니다.
 
 ### 수동 빌드
 
