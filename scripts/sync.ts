@@ -16,10 +16,15 @@ import matter from 'gray-matter';
 // Configuration file path
 const settingPath = resolve(import.meta.dirname, '..', 'setting.toml');
 
+export interface PostsSettings {
+  exclude_tags?: string[];
+}
+
 export interface Settings {
   source_root_path: string;
   blog_name: string;
   site_url?: string;
+  posts?: PostsSettings;
 }
 
 export function loadSettings(): Settings {
@@ -484,15 +489,25 @@ export function formatLocalDateTime(date: Date): string {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export function generateFrontmatter(doc: PublishableDocument): string {
+export function filterExcludedTags(tags: string[], excludeTags?: string[]): string[] {
+  if (!excludeTags || excludeTags.length === 0) {
+    return tags;
+  }
+  return tags.filter(tag => !excludeTags.includes(tag));
+}
+
+export function generateFrontmatter(doc: PublishableDocument, settings?: Settings): string {
   const dateStr = doc.date.toISOString().split('T')[0];
   const publishSyncAt = formatLocalDateTime(new Date());
   
   let yaml = `title: ${doc.title}\ndate: ${dateStr}\npublish: true\npublish_sync_at: "${publishSyncAt}"`;
   
   if (doc.frontmatter.tags) {
-    const tags = doc.frontmatter.tags as string[];
-    yaml += '\ntags:\n' + tags.map(t => `  - ${t}`).join('\n');
+    const rawTags = doc.frontmatter.tags as string[];
+    const tags = filterExcludedTags(rawTags, settings?.posts?.exclude_tags);
+    if (tags.length > 0) {
+      yaml += '\ntags:\n' + tags.map(t => `  - ${t}`).join('\n');
+    }
   }
   const summary = doc.frontmatter.summary as string | undefined
     ?? extractSummaryFromCallout(doc.content);
@@ -507,8 +522,8 @@ export function generateFrontmatter(doc: PublishableDocument): string {
   return `---\n${yaml}\n---`;
 }
 
-export function saveDocument(doc: PublishableDocument, outputDir: string): void {
-  const fm = generateFrontmatter(doc);
+export function saveDocument(doc: PublishableDocument, outputDir: string, settings?: Settings): void {
+  const fm = generateFrontmatter(doc, settings);
   const fullContent = `${fm}\n\n${doc.processedContent}`;
   const outputPath = join(outputDir, `${doc.slug}.md`);
   writeFileSync(outputPath, fullContent, 'utf-8');
@@ -522,7 +537,7 @@ export interface SyncResult {
   cleanup: CleanupResult;
 }
 
-export async function syncSource(sourcePath: string, outputDir: string): Promise<SyncResult> {
+export async function syncSource(sourcePath: string, outputDir: string, settings?: Settings): Promise<SyncResult> {
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
   }
@@ -569,7 +584,7 @@ export async function syncSource(sourcePath: string, outputDir: string): Promise
   
   for (const doc of toSync) {
     const { document, warnings } = processDocument(doc, publishedIndex, sourcePath);
-    saveDocument(document, outputDir);
+    saveDocument(document, outputDir, settings);
     allWarnings.push(...warnings);
     
     const { content: protectedContent } = protectCodeBlocks(doc.content);
@@ -726,7 +741,7 @@ async function main() {
   console.log('📝 Starting synchronization...');
   
   const outputDir = resolve(import.meta.dirname, '..', 'src', 'content', 'posts');
-  const { synced, skipped, removed, warnings, cleanup } = await syncSource(resolvedPath, outputDir);
+  const { synced, skipped, removed, warnings, cleanup } = await syncSource(resolvedPath, outputDir, settings);
   
   console.log('');
   

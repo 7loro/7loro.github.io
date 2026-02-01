@@ -10,6 +10,7 @@ import {
   processCallouts,
   processDocument,
   generateFrontmatter,
+  filterExcludedTags,
   findImageReferences,
   findImageFile,
   transformImagePaths,
@@ -17,7 +18,7 @@ import {
   cleanupUnusedImages,
   type ParsedDocument,
   type PublishableDocument,
-  type ImageReference,
+  type Settings,
 } from '../sync.ts';
 
 function createMockDoc(overrides: Partial<ParsedDocument> = {}): ParsedDocument {
@@ -291,6 +292,41 @@ describe('processDocument', () => {
   });
 });
 
+describe('filterExcludedTags', () => {
+  it('should return original tags when excludeTags is undefined', () => {
+    const tags = ['typescript', 'react', 'work'];
+    const result = filterExcludedTags(tags, undefined);
+    expect(result).toEqual(['typescript', 'react', 'work']);
+  });
+
+  it('should return original tags when excludeTags is empty', () => {
+    const tags = ['typescript', 'react', 'work'];
+    const result = filterExcludedTags(tags, []);
+    expect(result).toEqual(['typescript', 'react', 'work']);
+  });
+
+  it('should filter out excluded tags', () => {
+    const tags = ['typescript', 'react', 'work', 'personal'];
+    const excludeTags = ['work', 'personal'];
+    const result = filterExcludedTags(tags, excludeTags);
+    expect(result).toEqual(['typescript', 'react']);
+  });
+
+  it('should handle case where all tags are excluded', () => {
+    const tags = ['work', 'personal'];
+    const excludeTags = ['work', 'personal'];
+    const result = filterExcludedTags(tags, excludeTags);
+    expect(result).toEqual([]);
+  });
+
+  it('should handle case where no tags match exclusion list', () => {
+    const tags = ['typescript', 'react'];
+    const excludeTags = ['work', 'personal'];
+    const result = filterExcludedTags(tags, excludeTags);
+    expect(result).toEqual(['typescript', 'react']);
+  });
+});
+
 describe('generateFrontmatter', () => {
   it('should generate valid frontmatter', () => {
     const doc: PublishableDocument = {
@@ -323,6 +359,67 @@ describe('generateFrontmatter', () => {
     expect(result).toContain('title: Simple');
     expect(result).not.toContain('tags:');
     expect(result).not.toContain('summary:');
+  });
+
+  it('should exclude tags based on settings.posts.exclude_tags', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Tagged Post',
+        date: new Date('2024-01-15'),
+        frontmatter: { publish: true, tags: ['typescript', 'work', 'personal', 'react'] },
+      }),
+      processedContent: '',
+    };
+    const settings: Settings = {
+      source_root_path: '/test',
+      blog_name: 'Test Blog',
+      posts: { exclude_tags: ['work', 'personal'] },
+    };
+
+    const result = generateFrontmatter(doc, settings);
+    expect(result).toContain('- typescript');
+    expect(result).toContain('- react');
+    expect(result).not.toContain('- work');
+    expect(result).not.toContain('- personal');
+  });
+
+  it('should not include tags section when all tags are excluded', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Private Post',
+        date: new Date('2024-01-15'),
+        frontmatter: { publish: true, tags: ['work', 'personal'] },
+      }),
+      processedContent: '',
+    };
+    const settings: Settings = {
+      source_root_path: '/test',
+      blog_name: 'Test Blog',
+      posts: { exclude_tags: ['work', 'personal'] },
+    };
+
+    const result = generateFrontmatter(doc, settings);
+    expect(result).not.toContain('tags:');
+  });
+
+  it('should include all tags when no exclude_tags in settings', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Full Tags Post',
+        date: new Date('2024-01-15'),
+        frontmatter: { publish: true, tags: ['typescript', 'work', 'personal'] },
+      }),
+      processedContent: '',
+    };
+    const settings: Settings = {
+      source_root_path: '/test',
+      blog_name: 'Test Blog',
+    };
+
+    const result = generateFrontmatter(doc, settings);
+    expect(result).toContain('- typescript');
+    expect(result).toContain('- work');
+    expect(result).toContain('- personal');
   });
 });
 
