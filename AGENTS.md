@@ -300,4 +300,6 @@ style: Code formatting, missing semicolons, etc.
 refactor: Code improvements without functionality changes
 test: Add or modify tests
 chore: Build, configuration changes
+
+Use commit message using english as it is opensource project
 ```
