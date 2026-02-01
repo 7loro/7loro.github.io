@@ -83,7 +83,7 @@ const recentPosts = (await getCollection('posts'))
                   </time>
                   {post.data.tags && post.data.tags.length > 0 && (
                     <div class="post-card__tags">
-                      {post.data.tags.slice(0, 2).map((tag: string) => (
+                      {post.data.tags.map((tag: string) => (
                         <span class="post-tag" style={getTagStyle(tag)}>{tag}</span>
                       ))}
                     </div>
