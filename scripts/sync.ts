@@ -329,6 +329,36 @@ export function processImages(
   return { content: transformed, warnings };
 }
 
+export function extractSummaryFromCallout(content: string): string | null {
+  // regex: > [!SUMMARY] callout - extracts content for post preview
+  const lines = content.split('\n');
+  let inSummaryCallout = false;
+  const summaryContent: string[] = [];
+
+  for (const line of lines) {
+    const calloutStart = line.match(/^>\s*\[!(\w+)\](?:\s+(.*))?$/);
+
+    if (calloutStart) {
+      const type = calloutStart[1].toLowerCase();
+      if (type === 'summary') {
+        inSummaryCallout = true;
+        continue;
+      } else if (inSummaryCallout) {
+        break;
+      }
+    } else if (inSummaryCallout) {
+      if (line.startsWith('>')) {
+        summaryContent.push(line.slice(1).trim());
+      } else {
+        break;
+      }
+    }
+  }
+
+  const result = summaryContent.join(' ').trim();
+  return result.length > 0 ? result : null;
+}
+
 export function processCallouts(content: string): string {
    // regex: > [!TYPE] or > [!TYPE] title - Obsidian callout syntax
   const lines = content.split('\n');
@@ -464,8 +494,10 @@ export function generateFrontmatter(doc: PublishableDocument): string {
     const tags = doc.frontmatter.tags as string[];
     yaml += '\ntags:\n' + tags.map(t => `  - ${t}`).join('\n');
   }
-  if (doc.frontmatter.description) {
-    yaml += `\ndescription: ${doc.frontmatter.description}`;
+  const summary = doc.frontmatter.summary as string | undefined
+    ?? extractSummaryFromCallout(doc.content);
+  if (summary) {
+    yaml += `\nsummary: "${summary.replace(/"/g, '\\"')}"`;
   }
   if (doc.frontmatter.aliases) {
     const aliases = doc.frontmatter.aliases as string[];

@@ -92,8 +92,8 @@ const recentPosts = (await getCollection('posts'))
                 <h3 class="post-card__title">
                   <a href={`${baseUrl}posts/${post.slug}`}>{post.data.title}</a>
                 </h3>
-                {post.data.description && (
-                  <p class="post-card__description">{post.data.description}</p>
+                {post.data.summary && (
+                  <p class="post-card__summary">{post.data.summary}</p>
                 )}
               </div>
               <div class="post-card__arrow">→</div>
@@ -394,7 +394,7 @@ const recentPosts = (await getCollection('posts'))
     color: var(--accent);
   }
 
-  .post-card__description {
+  .post-card__summary {
     margin: 0;
     color: var(--text-secondary);
     line-height: var(--line-height-normal);

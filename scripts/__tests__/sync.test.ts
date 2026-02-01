@@ -6,6 +6,7 @@ import {
   extractDate,
   buildPublishedIndex,
   processWikilinks,
+  extractSummaryFromCallout,
   processCallouts,
   processDocument,
   generateFrontmatter,
@@ -223,6 +224,51 @@ Regular text`;
   });
 });
 
+describe('extractSummaryFromCallout', () => {
+  it('should extract summary from SUMMARY callout', () => {
+    const content = `> [!SUMMARY]
+> This is the summary text`;
+    const result = extractSummaryFromCallout(content);
+    expect(result).toBe('This is the summary text');
+  });
+
+  it('should handle lowercase summary callout', () => {
+    const content = `> [!summary]
+> Lowercase summary`;
+    const result = extractSummaryFromCallout(content);
+    expect(result).toBe('Lowercase summary');
+  });
+
+  it('should join multiline summary into single line', () => {
+    const content = `> [!SUMMARY]
+> Line one
+> Line two`;
+    const result = extractSummaryFromCallout(content);
+    expect(result).toBe('Line one Line two');
+  });
+
+  it('should return null if no summary callout', () => {
+    const content = `> [!NOTE]
+> This is a note`;
+    const result = extractSummaryFromCallout(content);
+    expect(result).toBeNull();
+  });
+
+  it('should return null for empty content', () => {
+    const result = extractSummaryFromCallout('');
+    expect(result).toBeNull();
+  });
+
+  it('should stop at next callout', () => {
+    const content = `> [!SUMMARY]
+> Summary text
+> [!NOTE]
+> Note text`;
+    const result = extractSummaryFromCallout(content);
+    expect(result).toBe('Summary text');
+  });
+});
+
 describe('processDocument', () => {
   it('should process wikilinks and callouts together', () => {
     const publishedDoc = createMockDoc({ title: 'Other Doc', slug: 'other-doc' });
@@ -251,7 +297,7 @@ describe('generateFrontmatter', () => {
       ...createMockDoc({
         title: 'Test Title',
         date: new Date('2024-01-15'),
-        frontmatter: { publish: true, tags: ['tag1', 'tag2'], description: 'A test' },
+        frontmatter: { publish: true, tags: ['tag1', 'tag2'], summary: 'A test' },
       }),
       processedContent: '',
     };
@@ -261,7 +307,7 @@ describe('generateFrontmatter', () => {
     expect(result).toContain('date:');
     expect(result).toContain('tags:');
     expect(result).toContain('- tag1');
-    expect(result).toContain('description: A test');
+    expect(result).toContain('summary: "A test"');
   });
 
   it('should handle optional fields', () => {
@@ -276,7 +322,7 @@ describe('generateFrontmatter', () => {
     const result = generateFrontmatter(doc);
     expect(result).toContain('title: Simple');
     expect(result).not.toContain('tags:');
-    expect(result).not.toContain('description:');
+    expect(result).not.toContain('summary:');
   });
 });
 

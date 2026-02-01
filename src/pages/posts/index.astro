@@ -32,8 +32,8 @@ const posts = (await getCollection('posts')).sort((a, b) => {
                 day: 'numeric',
               })}
             </p>
-            {post.data.description && (
-              <p class="post-card__description">{post.data.description}</p>
+            {post.data.summary && (
+              <p class="post-card__summary">{post.data.summary}</p>
             )}
             {post.data.tags && post.data.tags.length > 0 && (
               <div class="post-card__tags">
@@ -120,7 +120,7 @@ const posts = (await getCollection('posts')).sort((a, b) => {
     color: var(--text-secondary);
   }
 
-  .post-card__description {
+  .post-card__summary {
     margin: 0 0 var(--spacing-md) 0;
     color: var(--text-secondary);
     line-height: 1.6;
