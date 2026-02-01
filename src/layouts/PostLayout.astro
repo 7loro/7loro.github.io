@@ -143,6 +143,9 @@ const formattedDate = date ? new Intl.DateTimeFormat(dateLocale, {
     padding: 0 var(--spacing-lg);
     font-size: var(--font-size-lg);
     line-height: var(--line-height-relaxed);
+    min-width: 0; /* prevent overflow of flex/grid */
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   
   .post__content :global(h2) {

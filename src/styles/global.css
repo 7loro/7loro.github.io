@@ -115,6 +115,7 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-primary);
   min-height: 100vh;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -176,6 +177,7 @@ pre {
   border: var(--border-width) solid var(--border-color);
   box-shadow: 4px 4px 0 var(--shadow-color);
   overflow-x: auto;
+  max-width: 100%;
   margin-bottom: var(--spacing-lg);
 }
 
