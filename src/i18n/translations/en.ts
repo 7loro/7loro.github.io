@@ -57,6 +57,9 @@ export const en = {
 
   // Date locale
   dateLocale: 'en-US',
+
+  // Comments
+  comments: 'Comments',
 } as const;
 
 export type TranslationKey = keyof typeof en;

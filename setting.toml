@@ -35,3 +35,36 @@ intro_tags = ["JavaScript", "TypeScript", "React", "Node.js"]
 # Posts with these tags will still be synced, but these specific tags will be removed.
 # Useful for personal/private tags you don't want to appear on your public blog.
 # exclude_tags = ["work", "personal"]
+
+# Comments Configuration
+[comments]
+# Set to true to enable comments on posts.
+enabled = false
+# Currently only "giscus" is supported.
+provider = "giscus"
+
+[comments.giscus]
+# Giscus: A comments system powered by GitHub Discussions.
+# Generate your settings at: https://giscus.app
+# GitHub repository (e.g., "username/repo")
+repo = ""
+# Repository ID from giscus.app (e.g., "R_kgDOxxxxxx")
+repo_id = ""
+# Discussion category name (e.g., "Announcements", "General", "Comments")
+category = ""
+# Category ID from giscus.app (e.g., "DIC_kwDOxxxxxx")
+category_id = ""
+# How to map posts to discussions: "pathname" | "url" | "title" | "og:title"
+mapping = "pathname"
+# Strict title matching: "0" (off) | "1" (on)
+strict = "0"
+# Enable reactions: "0" (off) | "1" (on)
+reactions_enabled = "1"
+# Emit discussion metadata: "0" (off) | "1" (on)
+emit_metadata = "0"
+# Comment input position: "top" | "bottom"
+input_position = "top"
+# Theme: "light" | "dark" | "preferred_color_scheme" | custom URL
+theme = "preferred_color_scheme"
+# Language: "en" | "ko" | "ja" | "zh-CN" | etc.
+lang = "en"

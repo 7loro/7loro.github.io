@@ -36,6 +36,11 @@ Your notes are more than personal memos—they become a map that guides someone 
 - **Dark/Light Theme**: System preference detection with manual toggle
 - **SEO Optimized**: Auto-generated sitemap and meta tags
 - **GitHub Pages**: One-click deployment support
+- **Comments**: Giscus-powered comments via GitHub Discussions
+
+## Documentation
+
+📖 For detailed usage instructions and guides, visit the **[Official Documentation](https://7loro.github.io/girok-md/)**.
 
 ## Quick Start
 
@@ -214,6 +219,36 @@ The workflow automatically builds and deploys your blog on every push to the `ma
 npm run build
 # Upload the dist/ folder to your web server
 ```
+
+## Comments
+
+Enable comments on your blog posts using [Giscus](https://giscus.app), a comments system powered by GitHub Discussions.
+
+### Setup
+
+1. Visit [giscus.app](https://giscus.app) and configure your repository
+2. Copy the generated values to `setting.toml`:
+
+```toml
+[comments]
+enabled = true
+provider = "giscus"
+
+[comments.giscus]
+repo = "username/repo"
+repo_id = "R_..."
+category = "Announcements"
+category_id = "DIC_..."
+mapping = "pathname"
+strict = "0"
+reactions_enabled = "1"
+emit_metadata = "0"
+input_position = "top"
+theme = "preferred_color_scheme"
+lang = "en"
+```
+
+> **Note**: Your repository must have GitHub Discussions enabled. Go to **Settings > Features > Discussions** to enable it.
 
 ## Sync Logic
 

@@ -59,4 +59,7 @@ export const ko: Record<TranslationKey, string> = {
 
   // Date locale
   dateLocale: 'ko-KR',
+
+  // Comments
+  comments: '댓글',
 };

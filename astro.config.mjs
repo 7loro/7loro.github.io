@@ -24,6 +24,7 @@ export default defineConfig({
       'import.meta.env.BLOG_NAME': JSON.stringify(settings.blog_name),
       'import.meta.env.LOCALE': JSON.stringify(settings.locale || 'en'),
       'import.meta.env.INTRO': JSON.stringify(settings.intro || {}),
+      'import.meta.env.COMMENTS': JSON.stringify(settings.comments || { enabled: false }),
     },
   },
 });

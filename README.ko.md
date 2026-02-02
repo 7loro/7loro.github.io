@@ -34,6 +34,11 @@
 - **다크/라이트 테마**: 시스템 설정 연동 및 수동 전환
 - **SEO 최적화**: Sitemap, 메타 태그 자동 생성
 - **GitHub Pages**: 원클릭 배포 지원
+- **댓글**: GitHub Discussions 기반 Giscus 댓글 시스템
+
+## 문서
+
+📖 자세한 사용법과 가이드는 **[공식 문서](https://7loro.github.io/girok-md/)**를 참고하세요.
 
 ## 빠른 시작
 
@@ -212,6 +217,36 @@ GitHub Pages 설정:
 npm run build
 # dist/ 폴더를 웹 서버에 업로드
 ```
+
+## 댓글
+
+[Giscus](https://giscus.app)를 사용하여 블로그 포스트에 댓글 기능을 추가할 수 있습니다. Giscus는 GitHub Discussions 기반의 댓글 시스템입니다.
+
+### 설정
+
+1. [giscus.app](https://giscus.app)에서 저장소 설정을 구성합니다
+2. 생성된 값을 `setting.toml`에 복사합니다:
+
+```toml
+[comments]
+enabled = true
+provider = "giscus"
+
+[comments.giscus]
+repo = "username/repo"
+repo_id = "R_..."
+category = "Announcements"
+category_id = "DIC_..."
+mapping = "pathname"
+strict = "0"
+reactions_enabled = "1"
+emit_metadata = "0"
+input_position = "top"
+theme = "preferred_color_scheme"
+lang = "ko"
+```
+
+> **참고**: GitHub Discussions가 활성화되어 있어야 합니다. **Settings > Features > Discussions**에서 활성화하세요.
 
 ## 동기화 로직
 
