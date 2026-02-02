@@ -68,3 +68,19 @@ input_position = "top"
 theme = "preferred_color_scheme"
 # Language: "en" | "ko" | "ja" | "zh-CN" | etc.
 lang = "en"
+
+# Analytics Configuration
+# Track page views and display view counts on posts.
+[analytics]
+# Set to true to enable analytics tracking.
+enabled = false
+# Currently only "goatcounter" is supported.
+provider = "goatcounter"
+
+[analytics.goatcounter]
+# GoatCounter: Privacy-friendly web analytics without cookies.
+# Create your free account at: https://goatcounter.com
+# Your site code (e.g., "mysite" for mysite.goatcounter.com)
+site_code = ""
+# Show view count on posts (requires site_code to be configured)
+show_view_count = true

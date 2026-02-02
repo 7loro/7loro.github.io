@@ -25,6 +25,7 @@ export default defineConfig({
       'import.meta.env.LOCALE': JSON.stringify(settings.locale || 'en'),
       'import.meta.env.INTRO': JSON.stringify(settings.intro || {}),
       'import.meta.env.COMMENTS': JSON.stringify(settings.comments || { enabled: false }),
+      'import.meta.env.ANALYTICS': JSON.stringify(settings.analytics || { enabled: false }),
     },
   },
 });

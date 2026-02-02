@@ -63,6 +63,9 @@ export const en = {
 
   // Reading time
   readingTime: '{minutes} min read',
+
+  // View count
+  views: 'views',
 } as const;
 
 export type TranslationKey = keyof typeof en;

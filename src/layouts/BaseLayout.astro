@@ -3,6 +3,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 import ThemeSelector from '../components/ThemeSelector.astro';
 import Search from '../components/Search.astro';
 import SEO from '../components/SEO.astro';
+import Analytics from '../components/Analytics.astro';
 import { t, getLocale } from '../i18n';
 import '../styles/global.css';
 
@@ -77,7 +78,7 @@ const htmlLang = getLocale() === 'ko' ? 'ko' : 'en';
       </div>
     </footer>
 
-
+    <Analytics />
   </body>
 </html>
 
