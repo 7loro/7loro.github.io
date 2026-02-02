@@ -60,6 +60,9 @@ export const en = {
 
   // Comments
   comments: 'Comments',
+
+  // Reading time
+  readingTime: '{minutes} min read',
 } as const;
 
 export type TranslationKey = keyof typeof en;

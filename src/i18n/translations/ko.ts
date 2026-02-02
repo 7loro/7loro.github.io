@@ -62,4 +62,7 @@ export const ko: Record<TranslationKey, string> = {
 
   // Comments
   comments: '댓글',
+
+  // Reading time
+  readingTime: '{minutes}분',
 };
