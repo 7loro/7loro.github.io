@@ -35,6 +35,7 @@
 - **SEO 최적화**: Sitemap, 메타 태그 자동 생성
 - **GitHub Pages**: 원클릭 배포 지원
 - **댓글**: GitHub Discussions 기반 Giscus 댓글 시스템
+- **조회수**: GoatCounter 기반 프라이버시 친화적 페이지 조회수 추적
 
 ## 문서
 
@@ -247,6 +248,36 @@ lang = "ko"
 ```
 
 > **참고**: GitHub Discussions가 활성화되어 있어야 합니다. **Settings > Features > Discussions**에서 활성화하세요.
+
+## 분석 (조회수)
+
+[GoatCounter](https://goatcounter.com)를 사용하여 페이지 조회수를 추적하고 포스트에 조회수를 표시할 수 있습니다. GoatCounter는 쿠키를 사용하지 않는 프라이버시 친화적 분석 플랫폼입니다.
+
+### 설정
+
+1. [goatcounter.com](https://goatcounter.com)에서 무료 계정을 생성합니다
+2. 사이트 코드를 확인합니다 (예: `mysite.goatcounter.com`에서 `mysite`)
+3. `setting.toml`에서 설정합니다:
+
+```toml
+[analytics]
+enabled = true
+provider = "goatcounter"
+
+[analytics.goatcounter]
+site_code = "your-site-code"
+show_view_count = true
+```
+
+### 옵션
+
+| 옵션 | 설명 |
+|------|------|
+| `enabled` | 분석 추적 활성화/비활성화 |
+| `site_code` | GoatCounter 사이트 코드 |
+| `show_view_count` | 포스트 페이지에 조회수 표시 |
+
+> **참고**: 조회수는 GoatCounter의 공개 API에서 클라이언트 사이드로 가져옵니다. 페이지 방문 후 조회수가 업데이트되기까지 몇 분이 걸릴 수 있습니다.
 
 ## 동기화 로직
 

@@ -37,6 +37,7 @@ Your notes are more than personal memos—they become a map that guides someone 
 - **SEO Optimized**: Auto-generated sitemap and meta tags
 - **GitHub Pages**: One-click deployment support
 - **Comments**: Giscus-powered comments via GitHub Discussions
+- **View Count**: Privacy-friendly page view tracking via GoatCounter
 
 ## Documentation
 
@@ -249,6 +250,36 @@ lang = "en"
 ```
 
 > **Note**: Your repository must have GitHub Discussions enabled. Go to **Settings > Features > Discussions** to enable it.
+
+## Analytics (View Count)
+
+Track page views and display view counts on your posts using [GoatCounter](https://goatcounter.com), a privacy-friendly analytics platform that doesn't use cookies.
+
+### Setup
+
+1. Create a free account at [goatcounter.com](https://goatcounter.com)
+2. Note your site code (e.g., `mysite` from `mysite.goatcounter.com`)
+3. Configure in `setting.toml`:
+
+```toml
+[analytics]
+enabled = true
+provider = "goatcounter"
+
+[analytics.goatcounter]
+site_code = "your-site-code"
+show_view_count = true
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `enabled` | Enable/disable analytics tracking |
+| `site_code` | Your GoatCounter site code |
+| `show_view_count` | Show view count on post pages |
+
+> **Note**: View counts are fetched client-side from GoatCounter's public API. Counts may take a few minutes to update after page visits.
 
 ## Sync Logic
 
