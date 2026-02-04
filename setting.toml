@@ -36,6 +36,32 @@ intro_tags = ["JavaScript", "TypeScript", "React", "Node.js"]
 # Useful for personal/private tags you don't want to appear on your public blog.
 # exclude_tags = ["work", "personal"]
 
+# Translation Configuration
+# Auto-translate posts to other languages using AI or Google Translate.
+[posts.translate]
+# Enable translation feature
+enabled = true
+
+# Target languages to translate posts into.
+# Posts will be translated from the default locale to these languages.
+# See ISO 639-1 language codes: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+target_langs = ["en", "ko"]
+
+# === Optional: LLM Provider Settings ===
+# If not configured, Google Translate (free) will be used as fallback.
+
+# API Provider: "openai" | "anthropic" | "google"
+# provider = "openai"
+
+# API Key (use environment variable for security: "${OPENAI_API_KEY}")
+# api_key = "${OPENAI_API_KEY}"
+
+# Model to use for translation
+# OpenAI: "gpt-4o", "gpt-4o-mini", "gpt-4-turbo"
+# Anthropic: "claude-sonnet-4-20250514", "claude-3-5-haiku-20241022"
+# Google: "gemini-1.5-pro", "gemini-1.5-flash"
+# model = "gpt-4o-mini"
+
 # Comments Configuration
 [comments]
 # Set to true to enable comments on posts.

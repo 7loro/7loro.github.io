@@ -3,8 +3,10 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { t } from '../../i18n';
+import { getPostsForLocale } from '../../utils/i18nRouting';
 
-const posts = await getCollection('posts');
+const allPosts = await getCollection('posts');
+const posts = getPostsForLocale(allPosts);
 const allTags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort();
 
 const tagCounts: Record<string, number> = {};

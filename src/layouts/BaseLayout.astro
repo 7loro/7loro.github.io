@@ -7,14 +7,20 @@ import Analytics from '../components/Analytics.astro';
 import { t, getLocale } from '../i18n';
 import '../styles/global.css';
 
+interface AlternateUrl {
+  lang: string;
+  url: string;
+}
+
 interface Props {
   title: string;
   description?: string;
   image?: string;
   canonicalURL?: string;
+  alternateUrls?: AlternateUrl[];
 }
 
-const { title, description = t('defaultDescription'), image, canonicalURL } = Astro.props;
+const { title, description = t('defaultDescription'), image, canonicalURL, alternateUrls = [] } = Astro.props;
 
 const blogName = import.meta.env.BLOG_NAME || 'My Blog';
 
@@ -30,6 +36,13 @@ const htmlLang = getLocale() === 'ko' ? 'ko' : 'en';
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
     
     <SEO title={title} description={description} image={image} canonicalURL={canonicalURL} />
+    
+    {alternateUrls.length > 0 && alternateUrls.map(alt => (
+      <link rel="alternate" hreflang={alt.lang} href={alt.url} />
+    ))}
+    {alternateUrls.length > 0 && (
+      <link rel="alternate" hreflang="x-default" href={alternateUrls[0]?.url} />
+    )}
     
     <!-- FOUC 방지: 페이지 로드 전 테마 적용 -->
     <script is:inline>

@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getTagStyle } from '../utils/tagColor';
 import { t } from '../i18n';
+import { getPostsForLocale, getPostUrl } from '../utils/i18nRouting';
 
 const base = import.meta.env.BASE_URL;
 const baseUrl = base.endsWith('/') ? base : `${base}/`;
@@ -16,7 +17,8 @@ const introGreeting = intro.greeting || "Hello, I'm";
 const introDescription = intro.description || 'Welcome to my blog.';
 const introTags = intro.intro_tags || [];
 
-const recentPosts = (await getCollection('posts'))
+const allPosts = await getCollection('posts');
+const recentPosts = getPostsForLocale(allPosts)
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
   .slice(0, 9);
 ---
@@ -90,7 +92,7 @@ const recentPosts = (await getCollection('posts'))
                   )}
                 </div>
                 <h3 class="post-card__title">
-                  <a href={`${baseUrl}posts/${post.slug}`}>{post.data.title}</a>
+                  <a href={getPostUrl(post, baseUrl)}>{post.data.title}</a>
                 </h3>
                 {post.data.summary && (
                   <p class="post-card__summary">{post.data.summary}</p>

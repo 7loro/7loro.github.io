@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "test": "vitest",
     "sync": "node scripts/sync.ts",
+    "translate": "node scripts/translate.ts",
     "clean": "node scripts/clean.ts"
   },
   "keywords": ["markdown", "blog", "static-site-generator", "astro"],

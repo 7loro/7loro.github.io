@@ -12,12 +12,22 @@ import {
 } from 'fs';
 import { basename, extname, join, resolve, dirname } from 'path';
 import matter from 'gray-matter';
+import { detectLanguage } from './translate.ts';
 
 // Configuration file path
 const settingPath = resolve(import.meta.dirname, '..', 'setting.toml');
 
+export interface TranslateSettings {
+  enabled: boolean;
+  target_langs: string[];
+  provider?: 'openai' | 'anthropic' | 'google';
+  api_key?: string;
+  model?: string;
+}
+
 export interface PostsSettings {
   exclude_tags?: string[];
+  translate?: TranslateSettings;
 }
 
 export interface Settings {
@@ -499,8 +509,9 @@ export function filterExcludedTags(tags: string[], excludeTags?: string[]): stri
 export function generateFrontmatter(doc: PublishableDocument, settings?: Settings): string {
   const dateStr = doc.date.toISOString().split('T')[0];
   const publishSyncAt = formatLocalDateTime(new Date());
+  const lang = detectLanguage(doc.content);
   
-  let yaml = `title: ${doc.title}\ndate: ${dateStr}\npublish: true\npublish_sync_at: "${publishSyncAt}"`;
+  let yaml = `title: ${doc.title}\ndate: ${dateStr}\npublish: true\npublish_sync_at: "${publishSyncAt}"\nlang: ${lang}`;
   
   if (doc.frontmatter.tags) {
     const rawTags = doc.frontmatter.tags as string[];

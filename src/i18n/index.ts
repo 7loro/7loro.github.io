@@ -36,8 +36,4 @@ export function t(key: TranslationKey, params?: Record<string, string | number>)
   );
 }
 
-export function getAvailableLocales(): Locale[] {
-  return Object.keys(translations) as Locale[];
-}
-
 export { type TranslationKey };

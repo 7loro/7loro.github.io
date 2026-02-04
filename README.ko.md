@@ -257,7 +257,12 @@ lang = "ko"
 
 1. [goatcounter.com](https://goatcounter.com)에서 무료 계정을 생성합니다
 2. 사이트 코드를 확인합니다 (예: `mysite.goatcounter.com`에서 `mysite`)
-3. `setting.toml`에서 설정합니다:
+3. **Public Counter API 활성화** (조회수 표시에 필수):
+   - GoatCounter 대시보드에 로그인 (예: `mysite.goatcounter.com`)
+   - 상단 메뉴에서 **Settings** 클릭
+   - **"Allow adding visitor counts on your website"** 체크박스 활성화
+   - **Save** 클릭
+4. `setting.toml`에서 설정합니다:
 
 ```toml
 [analytics]
@@ -278,6 +283,13 @@ show_view_count = true
 | `show_view_count` | 포스트 페이지에 조회수 표시 |
 
 > **참고**: 조회수는 GoatCounter의 공개 API에서 클라이언트 사이드로 가져옵니다. 페이지 방문 후 조회수가 업데이트되기까지 몇 분이 걸릴 수 있습니다.
+
+### 문제 해결
+
+**조회수가 표시되지 않나요?**
+- GoatCounter Settings에서 **"Allow adding visitor counts on your website"** 옵션이 활성화되어 있는지 확인하세요
+- `site_code`가 GoatCounter 서브도메인과 정확히 일치하는지 확인하세요
+- 브라우저 콘솔에서 CORS 또는 API 오류가 있는지 확인하세요
 
 ## 동기화 로직
 

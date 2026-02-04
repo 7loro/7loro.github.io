@@ -2,9 +2,11 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { t } from '../../i18n';
+import { getPostsForLocale, getPostUrl } from '../../utils/i18nRouting';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const allPosts = await getCollection('posts');
+  const posts = getPostsForLocale(allPosts);
   const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
 
   // 소문자 태그 URL -> 원본 태그 매핑
@@ -57,7 +59,7 @@ const dateLocale = t('dateLocale');
             {posts.map((post) => (
               <article class="post-card">
                 <h2 class="post-card__title">
-                   <a href={`${baseUrl}posts/${post.slug}`}>{post.data.title}</a>
+                   <a href={getPostUrl(post, baseUrl)}>{post.data.title}</a>
                  </h2>
                 <p class="post-card__date">
                   {new Date(post.data.date).toLocaleDateString(dateLocale, {

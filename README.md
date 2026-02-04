@@ -259,7 +259,12 @@ Track page views and display view counts on your posts using [GoatCounter](https
 
 1. Create a free account at [goatcounter.com](https://goatcounter.com)
 2. Note your site code (e.g., `mysite` from `mysite.goatcounter.com`)
-3. Configure in `setting.toml`:
+3. **Enable Public Counter API** (required for view counts):
+   - Go to your GoatCounter dashboard (e.g., `mysite.goatcounter.com`)
+   - Navigate to **Settings** (top menu)
+   - Find **"Allow adding visitor counts on your website"** checkbox
+   - Enable it and click **Save**
+4. Configure in `setting.toml`:
 
 ```toml
 [analytics]
@@ -280,6 +285,13 @@ show_view_count = true
 | `show_view_count` | Show view count on post pages |
 
 > **Note**: View counts are fetched client-side from GoatCounter's public API. Counts may take a few minutes to update after page visits.
+
+### Troubleshooting
+
+**View counts not showing?**
+- Ensure **"Allow adding visitor counts on your website"** is enabled in GoatCounter Settings
+- Verify your `site_code` matches your GoatCounter subdomain exactly
+- Check browser console for CORS or API errors
 
 ## Sync Logic
 
