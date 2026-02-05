@@ -16,6 +16,8 @@ import {
   transformImagePaths,
   processImages,
   cleanupUnusedImages,
+  formatLocalDateTime,
+  generateRobotsTxt,
   type ParsedDocument,
   type PublishableDocument,
   type Settings,
@@ -519,5 +521,391 @@ describe('cleanupUnusedImages', () => {
     const result = cleanupUnusedImages('/nonexistent/posts', '/nonexistent/assets');
     expect(result.removedImages).toEqual([]);
     expect(result.removedDirs).toEqual([]);
+  });
+});
+
+describe('formatLocalDateTime', () => {
+  it('should format date as YYYY-MM-DD HH:mm:ss', () => {
+    const date = new Date(2024, 0, 15, 9, 5, 3);
+    expect(formatLocalDateTime(date)).toBe('2024-01-15 09:05:03');
+  });
+
+  it('should zero-pad single digit values', () => {
+    const date = new Date(2024, 2, 1, 1, 2, 3);
+    expect(formatLocalDateTime(date)).toBe('2024-03-01 01:02:03');
+  });
+
+  it('should handle midnight', () => {
+    const date = new Date(2024, 5, 15, 0, 0, 0);
+    expect(formatLocalDateTime(date)).toBe('2024-06-15 00:00:00');
+  });
+
+  it('should handle end of day', () => {
+    const date = new Date(2024, 11, 31, 23, 59, 59);
+    expect(formatLocalDateTime(date)).toBe('2024-12-31 23:59:59');
+  });
+});
+
+describe('generateRobotsTxt', () => {
+  it('should include User-agent and Allow directives', () => {
+    const result = generateRobotsTxt('https://example.com');
+    expect(result).toContain('User-agent: *');
+    expect(result).toContain('Allow: /');
+  });
+
+  it('should include sitemap URL with site URL', () => {
+    const result = generateRobotsTxt('https://example.com');
+    expect(result).toContain('Sitemap: https://example.com/sitemap-index.xml');
+  });
+
+  it('should use the exact site URL provided', () => {
+    const result = generateRobotsTxt('https://my-blog.github.io');
+    expect(result).toContain('Sitemap: https://my-blog.github.io/sitemap-index.xml');
+  });
+});
+
+describe('processDocument - code block protection', () => {
+  let publishedIndex: Map<string, ParsedDocument>;
+
+  beforeEach(() => {
+    const doc = createMockDoc({ title: 'Target', slug: 'target' });
+    publishedIndex = new Map([
+      ['Target', doc],
+      ['target', doc],
+    ]);
+  });
+
+  it('should not process wikilinks inside fenced code blocks', () => {
+    const doc = createMockDoc({
+      content: '```\n[[Target]]\n```',
+    });
+    const { document } = processDocument(doc, publishedIndex);
+    expect(document.processedContent).toContain('[[Target]]');
+    expect(document.processedContent).not.toContain('<a href');
+  });
+
+  it('should not process wikilinks inside inline code', () => {
+    const doc = createMockDoc({
+      content: 'Use `[[Target]]` syntax',
+    });
+    const { document } = processDocument(doc, publishedIndex);
+    expect(document.processedContent).toContain('`[[Target]]`');
+    expect(document.processedContent).not.toContain('<a href');
+  });
+
+  it('should process wikilinks outside code blocks while protecting inside', () => {
+    const doc = createMockDoc({
+      content: '[[Target]] and ```\n[[Target]]\n```',
+    });
+    const { document } = processDocument(doc, publishedIndex);
+    expect(document.processedContent).toContain('<a href="/posts/target">Target</a>');
+    expect(document.processedContent).toContain('```\n[[Target]]\n```');
+  });
+
+  it('should not process callouts inside code blocks', () => {
+    const doc = createMockDoc({
+      content: '```\n> [!NOTE]\n> Inside code\n```',
+    });
+    const { document } = processDocument(doc, publishedIndex);
+    expect(document.processedContent).not.toContain('callout-note');
+  });
+
+  it('should handle multiple code blocks correctly', () => {
+    const doc = createMockDoc({
+      content: '```js\n[[Target]]\n```\n\nNormal [[Target]]\n\n```py\n[[Target]]\n```',
+    });
+    const { document } = processDocument(doc, publishedIndex);
+    const anchors = document.processedContent.match(/<a href/g) || [];
+    expect(anchors).toHaveLength(1);
+  });
+});
+
+describe('processDocument - edge cases', () => {
+  it('should handle empty content', () => {
+    const publishedIndex = new Map<string, ParsedDocument>();
+    const doc = createMockDoc({ content: '' });
+    const { document, warnings } = processDocument(doc, publishedIndex);
+    expect(document.processedContent).toBe('');
+    expect(warnings).toHaveLength(0);
+  });
+
+  it('should handle content with only whitespace', () => {
+    const publishedIndex = new Map<string, ParsedDocument>();
+    const doc = createMockDoc({ content: '   \n\n   ' });
+    const { document } = processDocument(doc, publishedIndex);
+    expect(document.processedContent.trim()).toBe('');
+  });
+
+  it('should process nested callouts correctly', () => {
+    const publishedIndex = new Map<string, ParsedDocument>();
+    const doc = createMockDoc({
+      content: `> [!NOTE]
+> First callout
+> [!WARNING]
+> Second callout`,
+    });
+    const { document } = processDocument(doc, publishedIndex);
+    expect(document.processedContent).toContain('callout-note');
+    expect(document.processedContent).toContain('callout-warning');
+  });
+
+  it('should collect warnings from wikilinks and images', () => {
+    const publishedIndex = new Map<string, ParsedDocument>();
+    const doc = createMockDoc({
+      content: '[[Missing Doc]] and ![[missing.png]]',
+      filePath: '/source/test.md',
+    });
+    const { warnings } = processDocument(doc, publishedIndex, '/source');
+    expect(warnings.length).toBeGreaterThanOrEqual(1);
+    expect(warnings.some(w => w.includes('Missing Doc'))).toBe(true);
+  });
+});
+
+describe('generateSlug - additional edge cases', () => {
+  it('should handle empty title by using filename', () => {
+    expect(generateSlug('/path/my-file.md', '')).toBe('my-file');
+  });
+
+  it('should handle title with only special characters', () => {
+    expect(generateSlug('/path/file.md', '!@#$%')).toBe('');
+  });
+
+  it('should handle title with mixed korean and english', () => {
+    const slug = generateSlug('/path/file.md', '리액트 React 튜토리얼');
+    expect(slug).toBe('리액트-react-튜토리얼');
+  });
+
+  it('should handle title with leading and trailing dashes', () => {
+    expect(generateSlug('/path/file.md', '- Hello -')).toBe('hello');
+  });
+
+  it('should handle title with numbers', () => {
+    expect(generateSlug('/path/file.md', 'Chapter 1 Introduction')).toBe('chapter-1-introduction');
+  });
+});
+
+describe('buildPublishedIndex - edge cases', () => {
+  it('should handle empty document list', () => {
+    const index = buildPublishedIndex([]);
+    expect(index.size).toBe(0);
+  });
+
+  it('should handle documents without aliases', () => {
+    const docs = [createMockDoc({ title: 'Test', slug: 'test', frontmatter: { publish: true } })];
+    const index = buildPublishedIndex(docs);
+    expect(index.size).toBe(2);
+    expect(index.get('Test')).toBeDefined();
+    expect(index.get('test')).toBeDefined();
+  });
+
+  it('should handle documents with empty aliases array', () => {
+    const docs = [createMockDoc({
+      title: 'Test',
+      slug: 'test',
+      frontmatter: { publish: true, aliases: [] },
+    })];
+    const index = buildPublishedIndex(docs);
+    expect(index.size).toBe(2);
+  });
+
+  it('should index multiple documents', () => {
+    const docs = [
+      createMockDoc({ title: 'Doc A', slug: 'doc-a' }),
+      createMockDoc({ title: 'Doc B', slug: 'doc-b' }),
+    ];
+    const index = buildPublishedIndex(docs);
+    expect(index.get('Doc A')).toBeDefined();
+    expect(index.get('doc-a')).toBeDefined();
+    expect(index.get('Doc B')).toBeDefined();
+    expect(index.get('doc-b')).toBeDefined();
+  });
+});
+
+describe('processWikilinks - additional cases', () => {
+  it('should not match image embeds ![[image]]', () => {
+    const publishedIndex = new Map<string, ParsedDocument>();
+    const doc = createMockDoc();
+    const { content } = processWikilinks('![[image.png]]', publishedIndex, doc);
+    expect(content).toBe('![[image.png]]');
+  });
+
+  it('should handle wikilink with alias to published doc', () => {
+    const targetDoc = createMockDoc({ title: 'Full Title', slug: 'full-title' });
+    const publishedIndex = new Map([
+      ['Full Title', targetDoc],
+      ['full-title', targetDoc],
+      ['Alias', targetDoc],
+    ]);
+    const doc = createMockDoc();
+    const { content } = processWikilinks('[[Alias]]', publishedIndex, doc);
+    expect(content).toBe('<a href="/posts/full-title">Alias</a>');
+  });
+
+  it('should handle empty wikilink content gracefully', () => {
+    const publishedIndex = new Map<string, ParsedDocument>();
+    const doc = createMockDoc();
+    const { content } = processWikilinks('Text without wikilinks', publishedIndex, doc);
+    expect(content).toBe('Text without wikilinks');
+  });
+});
+
+describe('processCallouts - additional cases', () => {
+  it('should handle callout without content', () => {
+    const result = processCallouts('> [!NOTE]');
+    expect(result).toContain('callout-note');
+  });
+
+  it('should handle SUMMARY callout type', () => {
+    const result = processCallouts('> [!SUMMARY]\n> Summary text');
+    expect(result).toContain('callout-summary');
+  });
+
+  it('should preserve non-callout blockquotes', () => {
+    const content = '> This is a regular quote';
+    const result = processCallouts(content);
+    expect(result).toBe('> This is a regular quote');
+    expect(result).not.toContain('callout');
+  });
+
+  it('should handle consecutive callouts', () => {
+    const content = `> [!NOTE]
+> Note text
+> [!WARNING]
+> Warning text`;
+    const result = processCallouts(content);
+    expect(result).toContain('callout-note');
+    expect(result).toContain('callout-warning');
+  });
+});
+
+describe('generateFrontmatter - additional cases', () => {
+  it('should include aliases in frontmatter', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Aliased Post',
+        frontmatter: { publish: true, aliases: ['alias1', 'alias2'] },
+      }),
+      processedContent: '',
+    };
+    const result = generateFrontmatter(doc);
+    expect(result).toContain('aliases:');
+    expect(result).toContain('- alias1');
+    expect(result).toContain('- alias2');
+  });
+
+  it('should extract summary from SUMMARY callout when not in frontmatter', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Post with Callout',
+        content: '> [!SUMMARY]\n> Auto extracted summary',
+        frontmatter: { publish: true },
+      }),
+      processedContent: '',
+    };
+    const result = generateFrontmatter(doc);
+    expect(result).toContain('summary: "Auto extracted summary"');
+  });
+
+  it('should prefer frontmatter summary over callout summary', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Post',
+        content: '> [!SUMMARY]\n> Callout summary',
+        frontmatter: { publish: true, summary: 'Manual summary' },
+      }),
+      processedContent: '',
+    };
+    const result = generateFrontmatter(doc);
+    expect(result).toContain('summary: "Manual summary"');
+    expect(result).not.toContain('Callout summary');
+  });
+
+  it('should escape double quotes in summary', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Post',
+        frontmatter: { publish: true, summary: 'Say "hello" world' },
+      }),
+      processedContent: '',
+    };
+    const result = generateFrontmatter(doc);
+    expect(result).toContain('summary: "Say \\"hello\\" world"');
+  });
+
+  it('should include lang field', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Post',
+        content: 'This is english content for testing purposes',
+        frontmatter: { publish: true },
+      }),
+      processedContent: '',
+    };
+    const result = generateFrontmatter(doc);
+    expect(result).toContain('lang:');
+  });
+
+  it('should include publish_sync_at timestamp', () => {
+    const doc: PublishableDocument = {
+      ...createMockDoc({
+        title: 'Post',
+        frontmatter: { publish: true },
+      }),
+      processedContent: '',
+    };
+    const result = generateFrontmatter(doc);
+    expect(result).toMatch(/publish_sync_at: "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"/);
+  });
+});
+
+describe('findImageReferences - additional cases', () => {
+  it('should handle filenames with spaces', () => {
+    const content = '![[my screenshot 2024.png]]';
+    const images = findImageReferences(content);
+    expect(images).toHaveLength(1);
+    expect(images[0].filename).toBe('my screenshot 2024.png');
+  });
+
+  it('should handle filenames with @ symbol', () => {
+    const content = '![[CleanShot@2x.png]]';
+    const images = findImageReferences(content);
+    expect(images).toHaveLength(1);
+    expect(images[0].filename).toBe('CleanShot@2x.png');
+  });
+
+  it('should handle webp format', () => {
+    const content = '![[photo.webp]]';
+    const images = findImageReferences(content);
+    expect(images).toHaveLength(1);
+    expect(images[0].filename).toBe('photo.webp');
+  });
+
+  it('should handle svg format', () => {
+    const content = '![[diagram.svg]]';
+    const images = findImageReferences(content);
+    expect(images).toHaveLength(1);
+    expect(images[0].filename).toBe('diagram.svg');
+  });
+});
+
+describe('transformImagePaths - additional cases', () => {
+  it('should handle slug with korean characters', () => {
+    const content = '![[image.png]]';
+    const result = transformImagePaths(content, '한글-슬러그');
+    expect(result).toContain('/assets/한글-슬러그/image.png');
+  });
+
+  it('should preserve non-image content', () => {
+    const content = 'Before ![[img.png]] After';
+    const result = transformImagePaths(content, 'test');
+    expect(result).toContain('Before');
+    expect(result).toContain('After');
+    expect(result).toContain('/assets/test/img.png');
+  });
+
+  it('should add line breaks around images for markdown parsing', () => {
+    const content = 'text![[img.png]]text';
+    const result = transformImagePaths(content, 'slug');
+    expect(result).toContain('\n\n');
   });
 });
