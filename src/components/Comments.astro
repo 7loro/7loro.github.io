@@ -61,6 +61,22 @@ const isDev = import.meta.env.DEV;
         crossorigin="anonymous"
         async
       ></script>
+      <script is:inline>
+        // Sync initial theme with Giscus iframe after load
+        window.addEventListener('message', function(event) {
+          if (event.origin !== 'https://giscus.app') return;
+          if (!(typeof event.data === 'object' && event.data.giscus)) return;
+
+          var currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+          var giscusFrame = document.querySelector('iframe.giscus-frame');
+          if (giscusFrame) {
+            giscusFrame.contentWindow.postMessage(
+              { giscus: { setConfig: { theme: currentTheme === 'dark' ? 'dark' : 'light' } } },
+              'https://giscus.app',
+            );
+          }
+        }, { once: true });
+      </script>
     </div>
   </section>
 )}

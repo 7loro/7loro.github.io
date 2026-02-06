@@ -43,6 +43,13 @@ import { t } from '../i18n';
     localStorage.setItem('theme', theme);
     const label = theme === 'dark' ? labelLight : labelDark;
     themeToggle?.setAttribute('aria-label', label);
+
+    // Sync Giscus theme
+    const giscusFrame = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    giscusFrame?.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme: theme === 'dark' ? 'dark' : 'light' } } },
+      'https://giscus.app',
+    );
   }
 
   const initialTheme = document.documentElement.getAttribute('data-theme');
